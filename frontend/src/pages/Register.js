@@ -25,14 +25,15 @@ function Register() {
     setEmailStatus("checking");
     emailCheckTimer.current = setTimeout(async () => {
       try {
-        const res = await axios.post(`${API}/auth/check-email`, { email });
+        const res = await API.post("/auth/check-email", { email });
         setEmailStatus(res.data.exists ? "taken" : "available");
         if (res.data.exists) {
           setErrors((prev) => ({ ...prev, email: "This email is already registered" }));
         } else {
           setErrors((prev) => ({ ...prev, email: "" }));
         }
-      } catch {
+      } catch (error) {
+        console.error("Email check failed:", error?.response?.data || error.message || error);
         setEmailStatus(null);
       }
     }, 600); // debounce 600ms
