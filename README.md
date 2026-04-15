@@ -14,6 +14,7 @@ A collaborative web application that allows users to exchange skills and experti
 - [API Endpoints](#api-endpoints)
 - [Environment Variables](#environment-variables)
 - [Database Schema](#database-schema)
+- [Deployment](#deployment)
 - [Contributing](#contributing)
 - [License](#license)
 
@@ -371,6 +372,29 @@ The frontend will open on `http://localhost:3000`
   createdAt: Date
 }
 ```
+
+## 🚀 Deployment
+
+Ready to go live? We support deployment to production using:
+- **Frontend:** Vercel
+- **Backend:** Render
+- **Database:** MongoDB Atlas
+
+### Quick Start
+Follow our comprehensive [**Deployment Guide**](./DEPLOYMENT_GUIDE.md) for step-by-step instructions on:
+- Setting up MongoDB Atlas
+- Deploying backend to Render
+- Deploying frontend to Vercel
+- Configuring environment variables
+- Testing and troubleshooting
+
+### Production URLs Example
+Once deployed:
+- Frontend: `https://your-app.vercel.app`
+- Backend: `https://your-backend.onrender.com`
+- Database: MongoDB Atlas (cloud-hosted)
+
+---
 
 ## 🤝 Contributing
 
