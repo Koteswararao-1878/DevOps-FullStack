@@ -4,7 +4,7 @@ import Logo from "../components/Logo";
 
 import axios from "axios";
 
-const API = "http://localhost:5000/api";
+const API = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
 
 function Dashboard() {
   const navigate = useNavigate();
