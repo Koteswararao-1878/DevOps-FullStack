@@ -1,9 +1,7 @@
 import React, { useState, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Logo from "../components/Logo";
-import axios from "axios";
-
-const API = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
+import API from "../services/api";
 
 function Register() {
   const navigate = useNavigate();
@@ -67,13 +65,15 @@ function Register() {
     if (Object.keys(errs).length > 0) { setErrors(errs); return; }
     setLoading(true);
     try {
-      await axios.post(`${API}/auth/register`, {
+      await API.post("/auth/register", {
         name: form.name, email: form.email,
         phone: form.phone, password: form.password,
       });
       setStep(2);
     } catch (err) {
-      setErrors({ general: err.response?.data?.message || "Registration failed" });
+      const serverMessage = err.response?.data?.message || err.response?.data?.error;
+      setErrors({ general: serverMessage || err.message || "Registration failed" });
+      console.error("Registration error:", err.response?.data || err.message || err);
     } finally {
       setLoading(false);
     }
