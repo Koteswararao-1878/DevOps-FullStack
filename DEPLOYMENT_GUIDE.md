@@ -174,7 +174,10 @@ Your `frontend/package.json` should have build script (already there):
 2. Add:
    - **Name:** `REACT_APP_API_URL`
    - **Value:** `https://your-backend-url.onrender.com` (your Render URL)
-3. Click "Add"
+3. Add another variable:
+   - **Name:** `DISABLE_ESLINT_PLUGIN`
+   - **Value:** `true`
+4. Click "Add"
 
 ### Step 3.6: Deploy
 1. Click "Deploy"
