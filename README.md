@@ -202,6 +202,20 @@ REACT_APP_API_URL=http://localhost:5000
 
 ## 🏃 Running the Application
 
+### Prerequisites: Install Dependencies
+
+**Backend:**
+```bash
+cd backend
+npm install
+```
+
+**Frontend:**
+```bash
+cd frontend
+npm install
+```
+
 ### Start MongoDB
 
 If using local MongoDB:
@@ -213,7 +227,7 @@ If using MongoDB Atlas, ensure your connection string is set in `.env`.
 
 ### Start the Backend
 
-In the backend directory:
+In the backend directory (new terminal):
 ```bash
 # Development mode with auto-reload
 npm run dev
@@ -232,6 +246,24 @@ npm start
 ```
 
 The frontend will open on `http://localhost:3000`
+
+### 🔧 Troubleshooting
+
+**Frontend not opening / White screen:**
+- Clear browser cache: Ctrl+Shift+Delete (or Cmd+Shift+Delete on Mac)
+- Delete `node_modules` folder in frontend and reinstall: `npm install`
+- Ensure backend is running on port 5000
+- Check browser console for errors: F12 → Console tab
+
+**Backend connection errors:**
+- Verify MongoDB is running
+- Check `.env` file has correct `MONGODB_URI`
+- Ensure `JWT_SECRET` is set in `.env`
+- Check port 5000 is not in use
+
+**CORS errors:**
+- Ensure frontend `.env` has `REACT_APP_API_URL=http://localhost:5000`
+- Backend CORS is set to allow `http://localhost:3000`
 
 ## 🔌 API Endpoints
 
