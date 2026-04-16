@@ -234,7 +234,7 @@ function SwapRequests() {
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap", marginBottom: "10px" }}>
                     <div style={{ fontFamily: "'Syne',sans-serif", fontWeight: 700, fontSize: "16px", color: "#fff" }}>
-                      {req.sender?.name || req.fromUser?.name || "User"}
+                      {req.sender?.name || req.fromUser?.name}
                     </div>
                     {/* Status Badge */}
                     <span style={{
@@ -243,7 +243,7 @@ function SwapRequests() {
                       color: req.status === "pending" ? "#fbbf24" : req.status === "accepted" ? "#34d399" : "#f472b6",
                       border: req.status === "pending" ? "1px solid rgba(251,191,36,0.3)" : req.status === "accepted" ? "1px solid rgba(52,211,153,0.3)" : "1px solid rgba(244,114,182,0.3)",
                     }}>
-                      {req.status ? req.status.charAt(0).toUpperCase() + req.status.slice(1) : "Pending"}
+                      {req.status?.charAt(0).toUpperCase() + req.status?.slice(1)}
                     </span>
                   </div>
 
@@ -252,14 +252,14 @@ function SwapRequests() {
                     <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
                       <span style={{ fontSize: "11px", color: "rgba(255,255,255,0.35)", textTransform: "uppercase", letterSpacing: "0.05em" }}>Offers</span>
                       <span style={{ fontSize: "13px", padding: "3px 12px", borderRadius: "99px", background: "rgba(167,139,250,0.12)", color: "#a78bfa", border: "1px solid rgba(167,139,250,0.25)", fontWeight: 500 }}>
-                        {req.skillOffered || req.skillsOffered?.[0] || "—"}
+                        {req.skillOffered || req.skillsOffered?.[0]}
                       </span>
                     </div>
                     <span style={{ color: "rgba(255,255,255,0.2)", fontSize: "16px" }}>⇄</span>
                     <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
                       <span style={{ fontSize: "11px", color: "rgba(255,255,255,0.35)", textTransform: "uppercase", letterSpacing: "0.05em" }}>Wants</span>
                       <span style={{ fontSize: "13px", padding: "3px 12px", borderRadius: "99px", background: "rgba(56,189,248,0.1)", color: "#38bdf8", border: "1px solid rgba(56,189,248,0.25)", fontWeight: 500 }}>
-                        {req.skillRequested || req.skillWanted || req.skillsWanted?.[0] || "—"}
+                        {req.skillRequested || req.skillWanted || req.skillsWanted?.[0]}
                       </span>
                     </div>
                   </div>
