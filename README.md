@@ -18,7 +18,11 @@ A collaborative web application that allows users to exchange skills and experti
 - [Contributing](#contributing)
 - [License](#license)
 
-## 🎯 Project Overview
+## � Live Demo
+
+[View Live Demo](https://skill-swap-platform-theta.vercel.app)
+
+## �🎯 Project Overview
 
 The Skill Swap Platform is a full-stack application designed to connect people who want to exchange skills. Whether you want to learn programming, language, music, or any other skill, this platform provides a safe and interactive way to connect with others and exchange knowledge.
 
