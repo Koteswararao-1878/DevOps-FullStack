@@ -146,25 +146,25 @@ jobs:
           for i in {1..5}; do
             STATUS=$(curl -s -o /dev/null -w "%{http_code}" ${{ secrets.REACT_APP_API_URL }}/health || echo "000")
             if [ "$STATUS" = "200" ]; then
-              echo "✅ Backend is healthy!"
+              echo "Backend is healthy!"
               exit 0
             fi
             echo "Attempt $i: Backend returned $STATUS, retrying in 20s..."
             sleep 20
           done
-          echo "⚠️ Backend may still be warming up (Render free tier can be slow)"
+          echo "Backend may still be warming up (Render free tier can be slow)"
 
       - name: Check frontend health
         run: |
           STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://skill-swap-platform-theta.vercel.app || echo "000")
           if [ "$STATUS" = "200" ]; then
-            echo "✅ Frontend is live!"
+            echo "Frontend is live!"
           else
-            echo "⚠️ Frontend returned status: $STATUS"
+            echo "Frontend returned status: $STATUS"
           fi
 
       - name: Deploy Summary
         run: |
-          echo "🚀 SkillSwap Deploy Complete!"
+          echo "SkillSwap Deploy Complete!"
           echo "Frontend: https://skill-swap-platform-theta.vercel.app"
           echo "Backend:  ${{ secrets.REACT_APP_API_URL }}"
