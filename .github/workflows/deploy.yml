@@ -83,24 +83,30 @@ jobs:
   # JOB 3: Deploy Frontend to Vercel
   # ──────────────────────────────────────────
   deploy-frontend:
-    name: Deploy Frontend → Vercel
-    runs-on: ubuntu-latest
-    needs: [test-frontend]
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+  name: Deploy Frontend → Vercel
+  runs-on: ubuntu-latest
+  needs: [test-frontend]
+  if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+  steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
 
-      - name: Deploy to Vercel
-        uses: amondnet/vercel-action@v25  # ✅ Fixed: was v42.2.0 (invalid version)
-        with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}      # = your Team ID
-          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          vercel-args: --prod
-          working-directory: frontend
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: "18"
+
+    - name: Install Vercel CLI
+      run: npm install -g vercel@latest
+
+    - name: Deploy to Vercel
+      run: |
+        cd frontend
+        vercel --prod --token=${{ secrets.VERCEL_TOKEN }} --yes
+      env:
+        VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+        VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
   # ──────────────────────────────────────────
   # JOB 4: Deploy Backend to Render
