@@ -16,11 +16,9 @@ const app = express();
 // ── Create HTTP server + Socket.io ────────────────────────
 const server = http.createServer(app);
 
-const corsOrigin = process.env.FRONTEND_URL || "http://localhost:3000";
-
 const io = new Server(server, {
   cors: {
-    origin: corsOrigin,
+    origin: "http://localhost:3000",
     methods: ["GET", "POST"],
   },
 });
