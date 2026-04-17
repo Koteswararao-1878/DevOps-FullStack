@@ -33,9 +33,7 @@ jobs:
       - name: Check backend starts without error
         run: |
           cd backend
-          node -e "require('./server.js')" &
-          sleep 3
-          kill %1 || true
+          timeout 5 node -e "require('./server.js')" || true
         env:
           MONGO_URI: ${{ secrets.MONGO_URI }}
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
@@ -95,11 +93,11 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Deploy to Vercel
-        uses: amondnet/vercel-action@v42.2.0
+        uses: amondnet/vercel-action@v25  # ✅ Fixed: was v42.2.0 (invalid version)
         with:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}      # = your Team ID
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
           vercel-args: --prod
           working-directory: frontend
@@ -140,25 +138,29 @@ jobs:
     steps:
       - name: Check backend health
         run: |
-          sleep 20
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" ${{ secrets.REACT_APP_API_URL }}/health || echo "000")
-          if [ "$STATUS" = "200" ]; then
-            echo "Backend is healthy!"
-          else
-            echo "Backend returned status: $STATUS (may still be starting)"
-          fi
+          echo "Waiting for backend to warm up..."
+          for i in {1..5}; do
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" ${{ secrets.REACT_APP_API_URL }}/health || echo "000")
+            if [ "$STATUS" = "200" ]; then
+              echo "✅ Backend is healthy!"
+              exit 0
+            fi
+            echo "Attempt $i: Backend returned $STATUS, retrying in 20s..."
+            sleep 20
+          done
+          echo "⚠️ Backend may still be warming up (Render free tier can be slow)"
 
       - name: Check frontend health
         run: |
           STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://skill-swap-platform-theta.vercel.app || echo "000")
           if [ "$STATUS" = "200" ]; then
-            echo "Frontend is live!"
+            echo "✅ Frontend is live!"
           else
-            echo "Frontend returned status: $STATUS"
+            echo "⚠️ Frontend returned status: $STATUS"
           fi
 
       - name: Deploy Summary
         run: |
-          echo "SkillSwap Deploy Complete!"
+          echo "🚀 SkillSwap Deploy Complete!"
           echo "Frontend: https://skill-swap-platform-theta.vercel.app"
           echo "Backend:  ${{ secrets.REACT_APP_API_URL }}"
