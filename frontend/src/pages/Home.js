@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import axios from "axios";
 import Logo from "../components/Logo";
 
-const API = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
+const API = "http://localhost:5000/api";
 
 function Home() {
   const [scrolled, setScrolled] = useState(false);
@@ -34,7 +34,7 @@ function Home() {
     { value: "...", label: "Active Users",     color: "#a78bfa" },
     { value: "24/7", label: "Always Available", color: "#38bdf8" },
     { value: "Free", label: "Forever Free",   color: "#f472b6" },
-    { value: "100%", label: "Trusted Community",       color: "#fbbf24" },
+    { value: "...", label: "Avg Rating",       color: "#fbbf24" },
   ]);
   const [heroCount, setHeroCount] = useState("...");
 
@@ -74,7 +74,7 @@ function Home() {
         { value: userCount + "+",      label: "Active Users",     color: "#a78bfa" },
         { value: "24/7",               label: "Always Available",  color: "#38bdf8" },
         { value: "Free",               label: "Forever Free",     color: "#f472b6" },
-        { value:  "100%",      label: "Trusted Community",       color: "#fbbf24" },
+        { value: avgRating + "★",      label: "Avg Rating",       color: "#fbbf24" },
       ]);
     } catch (err) {
       console.error("Stats fetch error:", err);
@@ -83,7 +83,7 @@ function Home() {
         { value: "500+",  label: "Active Users",     color: "#a78bfa" },
         { value: "24/7",  label: "Always Available",  color: "#38bdf8" },
         { value: "Free",  label: "Forever Free",     color: "#f472b6" },
-        { value: "100%",  label: "Trusted Community",       color: "#fbbf24" },
+        { value: "4.8★",  label: "Avg Rating",       color: "#fbbf24" },
       ]);
       setHeroCount("500+");
     }
