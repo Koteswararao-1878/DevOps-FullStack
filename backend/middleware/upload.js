@@ -1,46 +1,30 @@
 const multer = require("multer");
-const path = require("path");
-const fs = require("fs");
+const { CloudinaryStorage } = require("multer-storage-cloudinary");
+const cloudinary = require("cloudinary").v2;
 
-const uploadDir = path.join(__dirname, "../../uploads");
-if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
+// Configure Cloudinary
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key:    process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, uploadDir),
-  filename: (req, file, cb) => {
-    const unique = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    cb(null, unique + path.extname(file.originalname));
+// Store files in Cloudinary
+const storage = new CloudinaryStorage({
+  cloudinary,
+  params: async (req, file) => {
+    const isImage = file.mimetype.startsWith("image/");
+    return {
+      folder:        "skillswap/chat",
+      resource_type: isImage ? "image" : "raw",
+      public_id:     `${Date.now()}-${file.originalname.replace(/\s+/g, "_")}`,
+      use_filename:  true,
+    };
   },
 });
 
-const fileFilter = (req, file, cb) => {
-  // Accept all common file types
-  const allowed = [
-    "image/jpeg", "image/png", "image/gif", "image/webp",
-    "application/pdf",
-    "application/msword",
-    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-    "application/vnd.ms-excel",
-    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-    "application/vnd.ms-powerpoint",
-    "application/vnd.openxmlformats-officedocument.presentationml.presentation",
-    "text/plain",
-    "text/csv",
-    "video/mp4",
-    "application/zip",
-    "application/x-zip-compressed",
-  ];
-  if (allowed.includes(file.mimetype)) {
-    cb(null, true);
-  } else {
-    // Accept anyway — don't block unknown types
-    cb(null, true);
-  }
-};
-
 const upload = multer({
   storage,
-  fileFilter,
   limits: { fileSize: 25 * 1024 * 1024 }, // 25MB
 });
 

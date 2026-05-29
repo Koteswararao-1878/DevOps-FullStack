@@ -15,25 +15,25 @@ exports.getMessages = async (req, res) => {
   }
 };
 
-// POST /api/messages/send (text or file)
+// POST /api/messages/send
 exports.sendMessage = async (req, res) => {
   try {
     const { receiverId, content } = req.body;
     if (!receiverId) return res.status(400).json({ message: "Receiver required" });
 
     const msgData = {
-      sender: req.user.id,
+      sender:   req.user.id,
       receiver: receiverId,
-      content: content || "",
+      content:  content || "",
     };
 
-    // If file uploaded
+    // If file uploaded via Cloudinary
     if (req.file) {
-      msgData.fileUrl      = `/uploads/${req.file.filename}`;
-      msgData.fileName     = req.file.originalname;
-      msgData.fileSize     = req.file.size;
-      msgData.fileType     = req.file.mimetype;
-      msgData.content      = content || req.file.originalname;
+      msgData.fileUrl  = req.file.path;        // Cloudinary URL
+      msgData.fileName = req.file.originalname;
+      msgData.fileSize = req.file.size || 0;
+      msgData.fileType = req.file.mimetype;
+      if (!msgData.content) msgData.content = req.file.originalname;
     }
 
     const message = await Message.create(msgData);
@@ -50,6 +50,12 @@ exports.deleteMessage = async (req, res) => {
     if (!msg) return res.status(404).json({ message: "Message not found" });
     if (msg.sender.toString() !== req.user.id)
       return res.status(403).json({ message: "Not authorized" });
+
+    // 24 hour restriction
+    const hours24 = 24 * 60 * 60 * 1000;
+    if (Date.now() - new Date(msg.createdAt).getTime() > hours24)
+      return res.status(403).json({ message: "Cannot delete messages older than 24 hours" });
+
     await Message.findByIdAndDelete(req.params.id);
     res.json({ message: "Message deleted" });
   } catch (error) {
