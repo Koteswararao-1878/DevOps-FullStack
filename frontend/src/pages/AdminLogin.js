@@ -82,7 +82,7 @@ function AdminLogin() {
           </form>
 
           <div style={{ marginTop: "20px", textAlign: "center", fontSize: "12px", color: "rgba(255,255,255,0.2)" }}>
-           
+            <p>Need help? <a href="mailto:support@skillswap.com" style={{ color: "rgba(255,255,255,0.35)", textDecoration: "underline" }}>Contact Support</a></p>
           </div>
         </div>
 

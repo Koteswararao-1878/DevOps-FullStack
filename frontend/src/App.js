@@ -1,5 +1,6 @@
 import React, { useState, useEffect, createContext, useContext } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { v2 as cloudinary } from 'cloudinary'
 
 // Pages
 import Home from "./pages/Home";

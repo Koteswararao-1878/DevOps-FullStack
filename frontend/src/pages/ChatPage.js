@@ -4,9 +4,8 @@ import Logo from "../components/Logo";
 import axios from "axios";
 import { io } from "socket.io-client";
 
-const API = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
-const SOCKET = (process.env.REACT_APP_API_URL || "http://localhost:5000/api").replace(/\/api$/, "");
-const SERVER_URL = (process.env.REACT_APP_API_URL || "http://localhost:5000/api").replace(/\/api$/, "");
+const API    = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
+const SOCKET = process.env.REACT_APP_SOCKET_URL || "http://localhost:5000";
 
 function ChatPage() {
   const navigate = useNavigate();
@@ -439,9 +438,9 @@ function ChatPage() {
                               {msg.fileUrl && (
                                 <div style={{ marginBottom: msg.content && msg.content !== msg.fileName ? "8px" : 0 }}>
                                   {msg.fileType?.startsWith("image/") ? (
-                                    <img src={SERVER_URL + msg.fileUrl} alt={msg.fileName} style={{ maxWidth: "220px", maxHeight: "180px", borderRadius: "8px", display: "block" }} />
+                                    <img src={msg.fileUrl.startsWith("http") ? msg.fileUrl : "https://skill-swap-backend-1bz4.onrender.com" + msg.fileUrl} alt={msg.fileName} style={{ maxWidth: "220px", maxHeight: "180px", borderRadius: "8px", display: "block" }} />
                                   ) : (
-                                    <a href={SERVER_URL + msg.fileUrl} target="_blank" rel="noreferrer" style={{ display: "flex", alignItems: "center", gap: "8px", textDecoration: "none", background: "rgba(255,255,255,0.1)", borderRadius: "8px", padding: "8px 12px" }}>
+                                    <a href={msg.fileUrl.startsWith("http") ? msg.fileUrl : "https://skill-swap-backend-1bz4.onrender.com" + msg.fileUrl} target="_blank" rel="noreferrer" style={{ display: "flex", alignItems: "center", gap: "8px", textDecoration: "none", background: "rgba(255,255,255,0.1)", borderRadius: "8px", padding: "8px 12px" }}>
                                       <span style={{ fontSize: "20px" }}>{msg.fileType?.includes("pdf") ? "📄" : msg.fileType?.includes("video") ? "🎥" : msg.fileType?.includes("word") ? "📝" : "📎"}</span>
                                       <div>
                                         <div style={{ fontSize: "13px", color: "#fff", fontWeight: 500 }}>{msg.fileName}</div>
