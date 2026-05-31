@@ -64,9 +64,6 @@ exports.sendMessage = async (req, res) => {
       console.log("=== cloudinary result ===", result.secure_url);
 
       let fileUrl = result.secure_url;
-      if (!isImage && !isVideo) {
-        fileUrl = fileUrl.replace("/raw/upload/", "/raw/upload/fl_attachment/");
-      }
 
       msgData.fileUrl = fileUrl;
       msgData.fileName = req.file.originalname;

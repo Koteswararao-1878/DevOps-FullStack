@@ -848,7 +848,6 @@ function ChatPage() {
                                       href={msg.fileUrl}
                                       target="_blank"
                                       rel="noreferrer"
-                                      download={msg.fileName}
                                       style={{
                                         display: "flex",
                                         alignItems: "center",
