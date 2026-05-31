@@ -845,22 +845,21 @@ function ChatPage() {
                                     />
                                   ) : (
                                     <a
-                                      href={
-                                        msg.fileType?.includes("pdf")
-                                          ? `https://docs.google.com/viewer?url=${encodeURIComponent(
-                                              // Strip any transformation flags from URL to get clean URL
-                                              msg.fileUrl
-                                                .replace(
-                                                  "/raw/upload/fl_attachment/",
-                                                  "/raw/upload/",
-                                                )
-                                                .replace(
-                                                  "/raw/upload/fl_inline/",
-                                                  "/raw/upload/",
-                                                ),
-                                            )}&embedded=false`
-                                          : msg.fileUrl
-                                      }
+                                      href={`https://docs.google.com/viewer?url=${encodeURIComponent(
+                                        msg.fileUrl
+                                          .replace(
+                                            "/raw/upload/fl_attachment/",
+                                            "/raw/upload/",
+                                          )
+                                          .replace(
+                                            "/raw/upload/fl_inline/",
+                                            "/raw/upload/",
+                                          )
+                                          .replace(
+                                            "/image/upload/",
+                                            "/raw/upload/",
+                                          ),
+                                      )}&embedded=false`}
                                       target="_blank"
                                       rel="noreferrer"
                                       style={{
@@ -878,9 +877,16 @@ function ChatPage() {
                                           ? "📄"
                                           : msg.fileType?.includes("video")
                                             ? "🎥"
-                                            : msg.fileType?.includes("word")
+                                            : msg.fileType?.includes("word") ||
+                                                msg.fileName?.endsWith(".docx")
                                               ? "📝"
-                                              : "📎"}
+                                              : msg.fileName?.endsWith(".pptx")
+                                                ? "📊"
+                                                : msg.fileName?.endsWith(
+                                                      ".xlsx",
+                                                    )
+                                                  ? "📈"
+                                                  : "📎"}
                                       </span>
                                       <div>
                                         <div
@@ -898,9 +904,7 @@ function ChatPage() {
                                             color: "rgba(255,255,255,0.6)",
                                           }}
                                         >
-                                          {msg.fileType?.includes("pdf")
-                                            ? "Click to view"
-                                            : "Click to open"}
+                                          Click to view
                                         </div>
                                       </div>
                                     </a>
