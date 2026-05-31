@@ -27,9 +27,18 @@ exports.sendMessage = async (req, res) => {
       content:  content || "",
     };
 
-    // If file uploaded via Cloudinary
     if (req.file) {
-      msgData.fileUrl  = req.file.path;        // Cloudinary URL
+      const isImage = req.file.mimetype.startsWith("image/");
+      const isVideo = req.file.mimetype.startsWith("video/");
+
+      // For non-image/video files (PDFs, docs, etc.), inject fl_attachment
+      // so Cloudinary serves them with Content-Disposition: attachment
+      let fileUrl = req.file.path;
+      if (!isImage && !isVideo) {
+        fileUrl = fileUrl.replace("/raw/upload/", "/raw/upload/fl_attachment/");
+      }
+
+      msgData.fileUrl  = fileUrl;
       msgData.fileName = req.file.originalname;
       msgData.fileSize = req.file.size || 0;
       msgData.fileType = req.file.mimetype;
@@ -51,7 +60,6 @@ exports.deleteMessage = async (req, res) => {
     if (msg.sender.toString() !== req.user.id)
       return res.status(403).json({ message: "Not authorized" });
 
-    // 24 hour restriction
     const hours24 = 24 * 60 * 60 * 1000;
     if (Date.now() - new Date(msg.createdAt).getTime() > hours24)
       return res.status(403).json({ message: "Cannot delete messages older than 24 hours" });
