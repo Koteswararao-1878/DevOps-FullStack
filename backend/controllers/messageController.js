@@ -17,13 +17,28 @@ exports.getMessages = async (req, res) => {
 
 exports.sendMessage = async (req, res) => {
   try {
+    console.log("=== sendMessage called ===");
+    console.log("content-type:", req.headers["content-type"]);
+    console.log("req.body:", req.body);
+    console.log(
+      "req.file:",
+      req.file
+        ? {
+            name: req.file.originalname,
+            size: req.file.size,
+            mime: req.file.mimetype,
+          }
+        : null,
+    );
+
     const { receiverId, content } = req.body;
-    if (!receiverId) return res.status(400).json({ message: "Receiver required" });
+    if (!receiverId)
+      return res.status(400).json({ message: "Receiver required" });
 
     const msgData = {
-      sender:   req.user.id,
+      sender: req.user.id,
       receiver: receiverId,
-      content:  content || "",
+      content: content || "",
     };
 
     if (req.file) {
@@ -32,11 +47,11 @@ exports.sendMessage = async (req, res) => {
       const resourceType = isImage ? "image" : isVideo ? "video" : "raw";
 
       const result = await uploadToCloudinary(req.file.buffer, {
-        folder:        "skillswap/chat",
+        folder: "skillswap/chat",
         resource_type: resourceType,
-        public_id:     `${Date.now()}-${req.file.originalname.replace(/\s+/g, "_")}`,
-        type:          "upload",
-        access_mode:   "public",
+        public_id: `${Date.now()}-${req.file.originalname.replace(/\s+/g, "_")}`,
+        type: "upload",
+        access_mode: "public",
       });
 
       let fileUrl = result.secure_url;
@@ -44,7 +59,7 @@ exports.sendMessage = async (req, res) => {
         fileUrl = fileUrl.replace("/raw/upload/", "/raw/upload/fl_attachment/");
       }
 
-      msgData.fileUrl  = fileUrl;
+      msgData.fileUrl = fileUrl;
       msgData.fileName = req.file.originalname;
       msgData.fileSize = req.file.size || 0;
       msgData.fileType = req.file.mimetype;
@@ -52,8 +67,13 @@ exports.sendMessage = async (req, res) => {
     }
 
     const message = await Message.create(msgData);
+    console.log("=== message saved ===", {
+      id: message._id,
+      fileUrl: message.fileUrl,
+    });
     res.status(201).json(message);
   } catch (error) {
+    console.error("=== sendMessage error ===", error.message);
     res.status(500).json({ error: error.message });
   }
 };
@@ -67,7 +87,9 @@ exports.deleteMessage = async (req, res) => {
 
     const hours24 = 24 * 60 * 60 * 1000;
     if (Date.now() - new Date(msg.createdAt).getTime() > hours24)
-      return res.status(403).json({ message: "Cannot delete messages older than 24 hours" });
+      return res
+        .status(403)
+        .json({ message: "Cannot delete messages older than 24 hours" });
 
     await Message.findByIdAndDelete(req.params.id);
     res.json({ message: "Message deleted" });
