@@ -846,7 +846,7 @@ function ChatPage() {
                                   ) : (
                                     <a
                                       href={
-                                        msg.fileType?.includes("pdf")
+                                        msg.fileUrl?.includes("/raw/upload/")
                                           ? `https://docs.google.com/viewer?url=${encodeURIComponent(msg.fileUrl)}&embedded=false`
                                           : msg.fileUrl
                                       }
@@ -887,9 +887,7 @@ function ChatPage() {
                                             color: "rgba(255,255,255,0.6)",
                                           }}
                                         >
-                                          {msg.fileType?.includes("pdf")
-                                            ? "Click to view"
-                                            : "Click to open"}
+                                          Click to view
                                         </div>
                                       </div>
                                     </a>
