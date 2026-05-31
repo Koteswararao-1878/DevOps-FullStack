@@ -1,6 +1,6 @@
 const multer = require("multer");
-const { CloudinaryStorage } = require("multer-storage-cloudinary");
 const cloudinary = require("cloudinary").v2;
+const { Readable } = require("stream");
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -8,26 +8,21 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-const storage = new CloudinaryStorage({
-  cloudinary,
-  params: async (req, file) => {
-    const isImage = file.mimetype.startsWith("image/");
-    const isVideo = file.mimetype.startsWith("video/");
-
-    return {
-      folder:        "skillswap/chat",
-      resource_type: isImage ? "image" : isVideo ? "video" : "raw",
-      public_id:     `${Date.now()}-${file.originalname.replace(/\s+/g, "_")}`,
-      use_filename:  true,
-      type:          "upload",
-      access_mode:   "public",
-    };
-  },
-});
-
-const upload = multer({
-  storage,
+// Use memory storage — no disk, no CloudinaryStorage package needed
+const upload = multer({ 
+  storage: multer.memoryStorage(),
   limits: { fileSize: 25 * 1024 * 1024 },
 });
 
-module.exports = upload;
+// Helper to upload buffer to Cloudinary
+const uploadToCloudinary = (buffer, options) => {
+  return new Promise((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream(options, (error, result) => {
+      if (error) reject(error);
+      else resolve(result);
+    });
+    Readable.from(buffer).pipe(stream);
+  });
+};
+
+module.exports = { upload, uploadToCloudinary, cloudinary };

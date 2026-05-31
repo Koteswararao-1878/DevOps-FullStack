@@ -1,6 +1,6 @@
 const Message = require("../models/Message");
+const { uploadToCloudinary } = require("../middleware/upload");
 
-// GET /api/messages/:userId
 exports.getMessages = async (req, res) => {
   try {
     const messages = await Message.find({
@@ -15,7 +15,6 @@ exports.getMessages = async (req, res) => {
   }
 };
 
-// POST /api/messages/send
 exports.sendMessage = async (req, res) => {
   try {
     const { receiverId, content } = req.body;
@@ -30,10 +29,17 @@ exports.sendMessage = async (req, res) => {
     if (req.file) {
       const isImage = req.file.mimetype.startsWith("image/");
       const isVideo = req.file.mimetype.startsWith("video/");
+      const resourceType = isImage ? "image" : isVideo ? "video" : "raw";
 
-      // For non-image/video files (PDFs, docs, etc.), inject fl_attachment
-      // so Cloudinary serves them with Content-Disposition: attachment
-      let fileUrl = req.file.path;
+      const result = await uploadToCloudinary(req.file.buffer, {
+        folder:        "skillswap/chat",
+        resource_type: resourceType,
+        public_id:     `${Date.now()}-${req.file.originalname.replace(/\s+/g, "_")}`,
+        type:          "upload",
+        access_mode:   "public",
+      });
+
+      let fileUrl = result.secure_url;
       if (!isImage && !isVideo) {
         fileUrl = fileUrl.replace("/raw/upload/", "/raw/upload/fl_attachment/");
       }
@@ -52,7 +58,6 @@ exports.sendMessage = async (req, res) => {
   }
 };
 
-// DELETE /api/messages/:id
 exports.deleteMessage = async (req, res) => {
   try {
     const msg = await Message.findById(req.params.id);
