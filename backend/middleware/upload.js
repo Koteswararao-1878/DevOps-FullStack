@@ -26,24 +26,37 @@ const parseUpload = (req, res, next) => {
   req.body = {};
   req.file = null;
 
-  bb.on("field", (name, val) => { req.body[name] = val; });
-
-  bb.on("file", (name, stream, info) => {
-    const chunks = [];
-    stream.on("data", (chunk) => chunks.push(chunk));
-    stream.on("end", () => {
-      const buffer = Buffer.concat(chunks); // ← concat ONCE
-      req.file = {
-        fieldname:    name,
-        originalname: info.filename,
-        mimetype:     info.mimeType,
-        buffer:       buffer,
-        size:         buffer.length,        // ← reuse same buffer
-      };
+  const fieldPromises = [];
+  const filePromise = new Promise((resolve) => {
+    bb.on("file", (name, stream, info) => {
+      const chunks = [];
+      stream.on("data", (chunk) => chunks.push(chunk));
+      stream.on("end", () => {
+        const buffer = Buffer.concat(chunks);
+        req.file = {
+          fieldname:    name,
+          originalname: info.filename,
+          mimetype:     info.mimeType,
+          buffer,
+          size: buffer.length,
+        };
+        resolve();
+      });
     });
+
+    // If no file field comes through, resolve immediately on finish
+    bb.on("finish", () => resolve());
   });
 
-  bb.on("finish", next);
+  bb.on("field", (name, val) => {
+    req.body[name] = val;
+  });
+
+  bb.on("finish", () => {
+    // Wait for file stream to fully complete before calling next()
+    filePromise.then(() => next()).catch(next);
+  });
+
   bb.on("error", (err) => {
     console.error("Busboy error:", err);
     next(err);
