@@ -64,6 +64,10 @@ exports.sendMessage = async (req, res) => {
       console.log("=== cloudinary result ===", result.secure_url);
 
       let fileUrl = result.secure_url;
+      // For PDFs and docs, use fl_inline to open in browser instead of downloading
+      if (!isImage && !isVideo) {
+        fileUrl = fileUrl.replace("/raw/upload/", "/raw/upload/fl_inline/");
+      }
 
       msgData.fileUrl = fileUrl;
       msgData.fileName = req.file.originalname;
