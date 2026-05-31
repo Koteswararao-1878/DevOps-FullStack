@@ -4,17 +4,20 @@ const { Readable } = require("stream");
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key:    process.env.CLOUDINARY_API_KEY,
+  api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
 const uploadToCloudinary = (buffer, options) => {
   return new Promise((resolve, reject) => {
-    const stream = cloudinary.uploader.upload_stream(options, (err, result) => {
-      if (err) reject(err);
-      else resolve(result);
-    });
-    Readable.from(buffer).pipe(stream);
+    const uploadStream = cloudinary.uploader.upload_stream(
+      options,
+      (err, result) => {
+        if (err) reject(err);
+        else resolve(result);
+      },
+    );
+    uploadStream.end(buffer); // ← directly write buffer, no Readable.from()
   });
 };
 
@@ -34,9 +37,9 @@ const parseUpload = (req, res, next) => {
       stream.on("end", () => {
         const buffer = Buffer.concat(chunks);
         req.file = {
-          fieldname:    name,
+          fieldname: name,
           originalname: info.filename,
-          mimetype:     info.mimeType,
+          mimetype: info.mimeType,
           buffer,
           size: buffer.length,
         };
