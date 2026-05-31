@@ -845,7 +845,11 @@ function ChatPage() {
                                     />
                                   ) : (
                                     <a
-                                      href={msg.fileUrl}
+                                      href={
+                                        msg.fileType?.includes("pdf")
+                                          ? `https://docs.google.com/viewer?url=${encodeURIComponent(msg.fileUrl)}&embedded=false`
+                                          : msg.fileUrl
+                                      }
                                       target="_blank"
                                       rel="noreferrer"
                                       style={{
@@ -883,7 +887,9 @@ function ChatPage() {
                                             color: "rgba(255,255,255,0.6)",
                                           }}
                                         >
-                                          Tap to download
+                                          {msg.fileType?.includes("pdf")
+                                            ? "Click to view"
+                                            : "Click to open"}
                                         </div>
                                       </div>
                                     </a>
