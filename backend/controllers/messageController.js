@@ -18,7 +18,6 @@ exports.getMessages = async (req, res) => {
 exports.sendMessage = async (req, res) => {
   try {
     console.log("=== sendMessage called ===");
-    console.log("content-type:", req.headers["content-type"]);
     console.log("req.body:", req.body);
     console.log(
       "req.file:",
@@ -46,13 +45,25 @@ exports.sendMessage = async (req, res) => {
       const isVideo = req.file.mimetype.startsWith("video/");
       const resourceType = isImage ? "image" : isVideo ? "video" : "raw";
 
+      // Strip extension from public_id to avoid Cloudinary conflicts
+      const safeName = req.file.originalname
+        .replace(/\s+/g, "_")
+        .replace(/\.[^/.]+$/, ""); // remove extension
+
+      console.log("=== uploading to cloudinary ===", {
+        resourceType,
+        safeName,
+      });
+
       const result = await uploadToCloudinary(req.file.buffer, {
         folder: "skillswap/chat",
         resource_type: resourceType,
-        public_id: `${Date.now()}-${req.file.originalname.replace(/\s+/g, "_")}`,
+        public_id: `${Date.now()}-${safeName}`,
         type: "upload",
         access_mode: "public",
       });
+
+      console.log("=== cloudinary result ===", result.secure_url);
 
       let fileUrl = result.secure_url;
       if (!isImage && !isVideo) {
@@ -73,7 +84,12 @@ exports.sendMessage = async (req, res) => {
     });
     res.status(201).json(message);
   } catch (error) {
-    console.error("=== sendMessage error ===", error.message);
+    console.error(
+      "=== sendMessage error ===",
+      error.message,
+      error.http_code,
+      JSON.stringify(error),
+    );
     res.status(500).json({ error: error.message });
   }
 };
