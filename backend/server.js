@@ -32,10 +32,12 @@ const io = new Server(server, {
 });
 
 // ── Middleware ────────────────────────────────────────────
-app.use(cors({
-  origin: allowedOrigins,
-  credentials: true,
-}));
+app.use(
+  cors({
+    origin: allowedOrigins,
+    credentials: true,
+  }),
+);
 app.use(express.json());
 
 // ── Health Check ──────────────────────────────────────────
@@ -48,12 +50,12 @@ app.get("/health", (req, res) => {
 });
 
 // ── Routes ───────────────────────────────────────────────
-app.use("/api/auth",     require("./routes/authRoutes"));
-app.use("/api/users",    require("./routes/userRoutes"));
-app.use("/api/swaps",    require("./routes/swapRoutes"));
+app.use("/api/auth", require("./routes/authRoutes"));
+app.use("/api/users", require("./routes/userRoutes"));
+app.use("/api/swaps", require("./routes/swapRoutes"));
 app.use("/api/messages", require("./routes/messageRoutes"));
-app.use("/api/ratings",  require("./routes/ratingRoutes"));
-app.use("/api/admin",    require("./routes/adminRoutes"));
+app.use("/api/ratings", require("./routes/ratingRoutes"));
+app.use("/api/admin", require("./routes/adminRoutes"));
 
 // ── Socket.io ─────────────────────────────────────────────
 const onlineUsers = new Map();
@@ -67,17 +69,23 @@ io.on("connection", (socket) => {
     console.log(`✅ User ${userId} is online`);
   });
 
-  socket.on("sendMessage", ({ senderId, receiverId, content }) => {
-    const receiverSocketId = onlineUsers.get(receiverId);
-    if (receiverSocketId) {
-      io.to(receiverSocketId).emit("receiveMessage", {
-        sender: senderId,
-        receiver: receiverId,
-        content,
-        createdAt: new Date().toISOString(),
-      });
-    }
-  });
+  socket.on(
+    "sendMessage",
+    ({ senderId, receiverId, content, fileUrl, fileName, fileType }) => {
+      const receiverSocketId = onlineUsers.get(receiverId);
+      if (receiverSocketId) {
+        io.to(receiverSocketId).emit("receiveMessage", {
+          sender: senderId,
+          receiver: receiverId,
+          content,
+          fileUrl: fileUrl || "",
+          fileName: fileName || "",
+          fileType: fileType || "",
+          createdAt: new Date().toISOString(),
+        });
+      }
+    },
+  );
 
   socket.on("typing", ({ senderId, receiverId }) => {
     const receiverSocketId = onlineUsers.get(receiverId);
