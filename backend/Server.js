@@ -12,19 +12,40 @@ connectDB();
 
 const app = express();
 
+// ── Allowed origins ───────────────────────────────────────
+const allowedOrigins = [
+  "http://localhost:3000",
+  "https://skill-swap-platform-theta.vercel.app",
+  "https://skill-swap-platform-2iephizhj.vercel.app",
+  process.env.FRONTEND_URL,
+].filter(Boolean);
+
 // ── Create HTTP server + Socket.io ────────────────────────
 const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:3000",
+    origin: allowedOrigins,
     methods: ["GET", "POST"],
+    credentials: true,
   },
 });
 
 // ── Middleware ────────────────────────────────────────────
-app.use(cors());
+app.use(cors({
+  origin: allowedOrigins,
+  credentials: true,
+}));
 app.use(express.json());
+
+// ── Health Check ──────────────────────────────────────────
+app.get("/", (req, res) => {
+  res.json({ message: "SkillSwap API is running ✅" });
+});
+
+app.get("/health", (req, res) => {
+  res.json({ status: "ok", message: "SkillSwap backend running!" });
+});
 
 // ── Routes ───────────────────────────────────────────────
 app.use("/api/auth",     require("./routes/authRoutes"));
@@ -34,25 +55,18 @@ app.use("/api/messages", require("./routes/messageRoutes"));
 app.use("/api/ratings",  require("./routes/ratingRoutes"));
 app.use("/api/admin",    require("./routes/adminRoutes"));
 
-// ── Health Check ──────────────────────────────────────────
-app.get("/", (req, res) => {
-  res.json({ message: "SkillSwap API is running ✅" });
-});
-
 // ── Socket.io ─────────────────────────────────────────────
-const onlineUsers = new Map(); // userId → socketId
+const onlineUsers = new Map();
 
 io.on("connection", (socket) => {
   console.log("🔌 Socket connected:", socket.id);
 
-  // User joins with their userId
   socket.on("join", (userId) => {
     onlineUsers.set(userId, socket.id);
     io.emit("onlineUsers", Array.from(onlineUsers.keys()));
     console.log(`✅ User ${userId} is online`);
   });
 
-  // Send message to specific user
   socket.on("sendMessage", ({ senderId, receiverId, content }) => {
     const receiverSocketId = onlineUsers.get(receiverId);
     if (receiverSocketId) {
@@ -65,7 +79,6 @@ io.on("connection", (socket) => {
     }
   });
 
-  // Typing indicator
   socket.on("typing", ({ senderId, receiverId }) => {
     const receiverSocketId = onlineUsers.get(receiverId);
     if (receiverSocketId) {
@@ -73,7 +86,6 @@ io.on("connection", (socket) => {
     }
   });
 
-  // User disconnects
   socket.on("disconnect", () => {
     for (const [userId, socketId] of onlineUsers.entries()) {
       if (socketId === socket.id) {
