@@ -59,8 +59,6 @@ exports.sendMessage = async (req, res) => {
         folder: "skillswap/chat",
         resource_type: resourceType,
         public_id: `${Date.now()}-${safeName}`,
-        type: "upload",
-        access_mode: "public",
       });
 
       console.log("=== cloudinary result ===", result.secure_url);
