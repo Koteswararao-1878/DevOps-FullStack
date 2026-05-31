@@ -846,8 +846,19 @@ function ChatPage() {
                                   ) : (
                                     <a
                                       href={
-                                        msg.fileUrl?.includes("/raw/upload/")
-                                          ? `https://docs.google.com/viewer?url=${encodeURIComponent(msg.fileUrl)}&embedded=false`
+                                        msg.fileType?.includes("pdf")
+                                          ? `https://docs.google.com/viewer?url=${encodeURIComponent(
+                                              // Strip any transformation flags from URL to get clean URL
+                                              msg.fileUrl
+                                                .replace(
+                                                  "/raw/upload/fl_attachment/",
+                                                  "/raw/upload/",
+                                                )
+                                                .replace(
+                                                  "/raw/upload/fl_inline/",
+                                                  "/raw/upload/",
+                                                ),
+                                            )}&embedded=false`
                                           : msg.fileUrl
                                       }
                                       target="_blank"
@@ -887,7 +898,9 @@ function ChatPage() {
                                             color: "rgba(255,255,255,0.6)",
                                           }}
                                         >
-                                          Click to view
+                                          {msg.fileType?.includes("pdf")
+                                            ? "Click to view"
+                                            : "Click to open"}
                                         </div>
                                       </div>
                                     </a>

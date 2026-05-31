@@ -42,6 +42,7 @@ exports.sendMessage = async (req, res) => {
         public_id: `${Date.now()}-${safeName}`,
       });
 
+      // Store clean URL, no transformation flags
       msgData.fileUrl = result.secure_url;
       msgData.fileName = req.file.originalname;
       msgData.fileSize = req.file.size || 0;
