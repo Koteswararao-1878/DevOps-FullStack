@@ -10,6 +10,17 @@ dotenv.config();
 // Connect to MongoDB
 connectDB();
 
+// Test Cloudinary connection on startup
+const cloudinary = require("cloudinary").v2;
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key:    process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+cloudinary.api.ping()
+  .then(r => console.log("✅ Cloudinary connected:", r))
+  .catch(e => console.log("❌ Cloudinary error:", e.message, e.http_code));
+
 const app = express();
 
 // ── Allowed origins ───────────────────────────────────────
