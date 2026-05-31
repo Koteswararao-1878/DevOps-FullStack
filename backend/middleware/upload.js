@@ -18,7 +18,6 @@ const uploadToCloudinary = (buffer, options) => {
   });
 };
 
-// Middleware that parses multipart/form-data without multer
 const parseUpload = (req, res, next) => {
   const contentType = req.headers["content-type"] || "";
   if (!contentType.includes("multipart/form-data")) return next();
@@ -33,18 +32,23 @@ const parseUpload = (req, res, next) => {
     const chunks = [];
     stream.on("data", (chunk) => chunks.push(chunk));
     stream.on("end", () => {
+      const buffer = Buffer.concat(chunks); // ← concat ONCE
       req.file = {
         fieldname:    name,
         originalname: info.filename,
         mimetype:     info.mimeType,
-        buffer:       Buffer.concat(chunks),
-        size:         Buffer.concat(chunks).length,
+        buffer:       buffer,
+        size:         buffer.length,        // ← reuse same buffer
       };
     });
   });
 
   bb.on("finish", next);
-  bb.on("error", next);
+  bb.on("error", (err) => {
+    console.error("Busboy error:", err);
+    next(err);
+  });
+
   req.pipe(bb);
 };
 
