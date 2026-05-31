@@ -1,5 +1,5 @@
-const multer = require("multer");
 const cloudinary = require("cloudinary").v2;
+const busboy = require("busboy");
 const { Readable } = require("stream");
 
 cloudinary.config({
@@ -8,21 +8,44 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-// Use memory storage — no disk, no CloudinaryStorage package needed
-const upload = multer({ 
-  storage: multer.memoryStorage(),
-  limits: { fileSize: 25 * 1024 * 1024 },
-});
-
-// Helper to upload buffer to Cloudinary
 const uploadToCloudinary = (buffer, options) => {
   return new Promise((resolve, reject) => {
-    const stream = cloudinary.uploader.upload_stream(options, (error, result) => {
-      if (error) reject(error);
+    const stream = cloudinary.uploader.upload_stream(options, (err, result) => {
+      if (err) reject(err);
       else resolve(result);
     });
     Readable.from(buffer).pipe(stream);
   });
 };
 
-module.exports = { upload, uploadToCloudinary, cloudinary };
+// Middleware that parses multipart/form-data without multer
+const parseUpload = (req, res, next) => {
+  const contentType = req.headers["content-type"] || "";
+  if (!contentType.includes("multipart/form-data")) return next();
+
+  const bb = busboy({ headers: req.headers });
+  req.body = {};
+  req.file = null;
+
+  bb.on("field", (name, val) => { req.body[name] = val; });
+
+  bb.on("file", (name, stream, info) => {
+    const chunks = [];
+    stream.on("data", (chunk) => chunks.push(chunk));
+    stream.on("end", () => {
+      req.file = {
+        fieldname:    name,
+        originalname: info.filename,
+        mimetype:     info.mimeType,
+        buffer:       Buffer.concat(chunks),
+        size:         Buffer.concat(chunks).length,
+      };
+    });
+  });
+
+  bb.on("finish", next);
+  bb.on("error", next);
+  req.pipe(bb);
+};
+
+module.exports = { parseUpload, uploadToCloudinary, cloudinary };
